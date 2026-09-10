@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import {
   addEdge,
   Background,
+  ConnectionMode,
   Controls,
   ReactFlow,
   ReactFlowProvider,
@@ -13,8 +14,10 @@ import {
   applyNodeChanges,
   useReactFlow,
   type Connection,
+  type Edge,
   type EdgeChange,
   type NodeChange,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -29,14 +32,57 @@ const nodeTypes = {
   text: TextNode,
 };
 
+type Side = 'top' | 'right' | 'bottom' | 'left';
+
+function getNodeCenter(node: RoadmapNodeType) {
+  const width = node.measured?.width ?? node.width ?? (node.type === 'roadmap' ? 200 : 120);
+  const height = node.measured?.height ?? node.height ?? (node.type === 'roadmap' ? 60 : 36);
+
+  return {
+    x: node.position.x + width / 2,
+    y: node.position.y + height / 2,
+  };
+}
+
+function getBestSides(source: RoadmapNodeType, target: RoadmapNodeType): [Side, Side] {
+  const a = getNodeCenter(source);
+  const b = getNodeCenter(target);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0 ? ['right', 'left'] : ['left', 'right'];
+  }
+
+  return dy >= 0 ? ['bottom', 'top'] : ['top', 'bottom'];
+}
+
+function autoAttachEdges(nodes: RoadmapNodeType[], edges: Edge[]) {
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+
+  return edges.map((edge) => {
+    const source = nodeMap.get(edge.source);
+    const target = nodeMap.get(edge.target);
+    if (!source || !target) return edge;
+
+    const [sourceHandle, targetHandle] = getBestSides(source, target);
+    if (edge.sourceHandle === sourceHandle && edge.targetHandle === targetHandle) return edge;
+
+    return { ...edge, sourceHandle, targetHandle };
+  });
+}
+
 function EditorCanvas() {
   const {
     nodes,
     edges,
     tool,
+    viewport,
+    hasHydrated,
     setNodes,
     setEdges,
     setTool,
+    setViewport: saveViewport,
     addNodeAt,
     addTextAt,
     selectNode,
@@ -44,11 +90,20 @@ function EditorCanvas() {
     clearSelection,
     deleteSelection,
   } = useRoadmapStore();
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, setViewport: setFlowViewport } = useReactFlow();
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    void setFlowViewport(viewport, { duration: 0 });
+  }, [hasHydrated, setFlowViewport]);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange<RoadmapNodeType>[]) => setNodes(applyNodeChanges(changes, nodes)),
-    [nodes, setNodes]
+    (changes: NodeChange<RoadmapNodeType>[]) => {
+      const nextNodes = applyNodeChanges(changes, nodes);
+      setNodes(nextNodes);
+      setEdges(autoAttachEdges(nextNodes, edges));
+    },
+    [edges, nodes, setEdges, setNodes]
   );
 
   const onEdgesChange = useCallback(
@@ -58,19 +113,18 @@ function EditorCanvas() {
 
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges(
-        addEdge(
-          {
-            ...connection,
-            markerEnd: { type: MarkerType.ArrowClosed },
-            style: { strokeWidth: 2 },
-          },
-          edges
-        )
+      const nextEdges = addEdge(
+        {
+          ...connection,
+          markerEnd: { type: MarkerType.ArrowClosed },
+          style: { strokeWidth: 2 },
+        },
+        edges
       );
+      setEdges(autoAttachEdges(nodes, nextEdges));
       setTool('select');
     },
-    [edges, setEdges, setTool]
+    [edges, nodes, setEdges, setTool]
   );
 
   const onPaneClick = useCallback(
@@ -90,6 +144,11 @@ function EditorCanvas() {
       clearSelection();
     },
     [addNodeAt, addTextAt, clearSelection, screenToFlowPosition, tool]
+  );
+
+  const onMoveEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | null, nextViewport: Viewport) => saveViewport(nextViewport),
+    [saveViewport]
   );
 
   useEffect(() => {
@@ -118,7 +177,7 @@ function EditorCanvas() {
       <header className="topbar">
         <div>
           <strong>Personal Roadmap</strong>
-          <span>локальная версия</span>
+          <span>автосохранение включено</span>
         </div>
       </header>
 
@@ -133,14 +192,15 @@ function EditorCanvas() {
           onPaneClick={onPaneClick}
           onNodeClick={(_, node) => selectNode(node.id)}
           onEdgeClick={(_, edge) => selectEdge(edge.id)}
+          onMoveEnd={onMoveEnd}
+          connectionMode={ConnectionMode.Loose}
           selectionOnDrag={tool === 'select'}
           selectionMode={SelectionMode.Partial}
-          multiSelectionKeyCode={["Meta", "Shift"]}
+          multiSelectionKeyCode={['Meta', 'Shift']}
           panOnDrag={tool === 'select' ? [1, 2] : true}
           panOnScroll
           deleteKeyCode={null}
           edgesReconnectable
-          fitView
         >
           <Background gap={24} size={1} />
           <Controls />

@@ -1,7 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import type { Edge, Node } from '@xyflow/react';
+import { persist } from 'zustand/middleware';
+import type { Edge, Node, Viewport } from '@xyflow/react';
 
 export type RoadmapNodeData = {
   kind: 'block' | 'text';
@@ -12,7 +13,6 @@ export type RoadmapNodeData = {
 };
 
 export type RoadmapNode = Node<RoadmapNodeData>;
-
 export type ToolMode = 'select' | 'block' | 'text' | 'arrow';
 
 type RoadmapState = {
@@ -21,9 +21,13 @@ type RoadmapState = {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
   tool: ToolMode;
+  viewport: Viewport;
+  hasHydrated: boolean;
   setNodes: (nodes: RoadmapNode[]) => void;
   setEdges: (edges: Edge[]) => void;
   setTool: (tool: ToolMode) => void;
+  setViewport: (viewport: Viewport) => void;
+  setHasHydrated: (value: boolean) => void;
   addNodeAt: (position: { x: number; y: number }) => void;
   addTextAt: (position: { x: number; y: number }) => void;
   selectNode: (id: string | null) => void;
@@ -50,102 +54,121 @@ const initialNodes: RoadmapNode[] = [
   },
 ];
 
-export const useRoadmapStore = create<RoadmapState>((set) => ({
-  nodes: initialNodes,
-  edges: [],
-  selectedNodeId: null,
-  selectedEdgeId: null,
-  tool: 'select',
-
-  setNodes: (nodes) => set({ nodes }),
-  setEdges: (edges) => set({ edges }),
-  setTool: (tool) => set({ tool }),
-
-  addNodeAt: (position) =>
-    set((state) => ({
-      nodes: [
-        ...state.nodes,
-        {
-          id: crypto.randomUUID(),
-          type: 'roadmap',
-          position,
-          data: {
-            kind: 'block',
-            title: 'Новый блок',
-            description: '',
-            completed: false,
-            text: '',
-          },
-        },
-      ],
+export const useRoadmapStore = create<RoadmapState>()(
+  persist(
+    (set) => ({
+      nodes: initialNodes,
+      edges: [],
+      selectedNodeId: null,
+      selectedEdgeId: null,
       tool: 'select',
-    })),
+      viewport: { x: 0, y: 0, zoom: 1 },
+      hasHydrated: false,
 
-  addTextAt: (position) =>
-    set((state) => ({
-      nodes: [
-        ...state.nodes,
-        {
-          id: crypto.randomUUID(),
-          type: 'text',
-          position,
-          data: {
-            kind: 'text',
-            title: '',
-            description: '',
-            completed: false,
-            text: 'Текст',
-          },
-        },
-      ],
-      tool: 'select',
-    })),
+      setNodes: (nodes) => set({ nodes }),
+      setEdges: (edges) => set({ edges }),
+      setTool: (tool) => set({ tool }),
+      setViewport: (viewport) => set({ viewport }),
+      setHasHydrated: (value) => set({ hasHydrated: value }),
 
-  selectNode: (id) => set({ selectedNodeId: id, selectedEdgeId: null }),
-  selectEdge: (id) => set({ selectedEdgeId: id, selectedNodeId: null }),
-  clearSelection: () => set({ selectedNodeId: null, selectedEdgeId: null }),
+      addNodeAt: (position) =>
+        set((state) => ({
+          nodes: [
+            ...state.nodes,
+            {
+              id: crypto.randomUUID(),
+              type: 'roadmap',
+              position,
+              data: {
+                kind: 'block',
+                title: 'Новый блок',
+                description: '',
+                completed: false,
+                text: '',
+              },
+            },
+          ],
+          tool: 'select',
+        })),
 
-  updateNode: (id, patch) =>
-    set((state) => ({
-      nodes: state.nodes.map((node) =>
-        node.id === id ? { ...node, data: { ...node.data, ...patch } } : node
-      ),
-    })),
+      addTextAt: (position) =>
+        set((state) => ({
+          nodes: [
+            ...state.nodes,
+            {
+              id: crypto.randomUUID(),
+              type: 'text',
+              position,
+              data: {
+                kind: 'text',
+                title: '',
+                description: '',
+                completed: false,
+                text: 'Текст',
+              },
+            },
+          ],
+          tool: 'select',
+        })),
 
-  deleteNode: (id) =>
-    set((state) => ({
-      nodes: state.nodes.filter((node) => node.id !== id),
-      edges: state.edges.filter((edge) => edge.source !== id && edge.target !== id),
-      selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId,
-    })),
+      selectNode: (id) => set({ selectedNodeId: id, selectedEdgeId: null }),
+      selectEdge: (id) => set({ selectedEdgeId: id, selectedNodeId: null }),
+      clearSelection: () => set({ selectedNodeId: null, selectedEdgeId: null }),
 
-  deleteEdge: (id) =>
-    set((state) => ({
-      edges: state.edges.filter((edge) => edge.id !== id),
-      selectedEdgeId: state.selectedEdgeId === id ? null : state.selectedEdgeId,
-    })),
+      updateNode: (id, patch) =>
+        set((state) => ({
+          nodes: state.nodes.map((node) =>
+            node.id === id ? { ...node, data: { ...node.data, ...patch } } : node
+          ),
+        })),
 
-  deleteSelection: () =>
-    set((state) => {
-      const selectedNodeIds = new Set(
-        state.nodes.filter((node) => node.selected || node.id === state.selectedNodeId).map((node) => node.id)
-      );
-      const selectedEdgeIds = new Set(
-        state.edges.filter((edge) => edge.selected || edge.id === state.selectedEdgeId).map((edge) => edge.id)
-      );
+      deleteNode: (id) =>
+        set((state) => ({
+          nodes: state.nodes.filter((node) => node.id !== id),
+          edges: state.edges.filter((edge) => edge.source !== id && edge.target !== id),
+          selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId,
+        })),
 
-      if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0) return {};
+      deleteEdge: (id) =>
+        set((state) => ({
+          edges: state.edges.filter((edge) => edge.id !== id),
+          selectedEdgeId: state.selectedEdgeId === id ? null : state.selectedEdgeId,
+        })),
 
-      return {
-        nodes: state.nodes.filter((node) => !selectedNodeIds.has(node.id)),
-        edges: state.edges.filter(
-          (edge) =>
-            !selectedEdgeIds.has(edge.id) &&
-            !selectedNodeIds.has(edge.source) &&
-            !selectedNodeIds.has(edge.target)
-        ),
-        selectedNodeId: null,
-        selectedEdgeId: null,
-      };
+      deleteSelection: () =>
+        set((state) => {
+          const selectedNodeIds = new Set(
+            state.nodes.filter((node) => node.selected || node.id === state.selectedNodeId).map((node) => node.id)
+          );
+          const selectedEdgeIds = new Set(
+            state.edges.filter((edge) => edge.selected || edge.id === state.selectedEdgeId).map((edge) => edge.id)
+          );
+
+          if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0) return {};
+
+          return {
+            nodes: state.nodes.filter((node) => !selectedNodeIds.has(node.id)),
+            edges: state.edges.filter(
+              (edge) =>
+                !selectedEdgeIds.has(edge.id) &&
+                !selectedNodeIds.has(edge.source) &&
+                !selectedNodeIds.has(edge.target)
+            ),
+            selectedNodeId: null,
+            selectedEdgeId: null,
+          };
+        }),
     }),
-}));
+    {
+      name: 'personal-roadmap-v1',
+      partialize: (state) => ({
+        nodes: state.nodes.map((node) => ({ ...node, selected: false })),
+        edges: state.edges.map((edge) => ({ ...edge, selected: false })),
+        viewport: state.viewport,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    }
+  )
+);

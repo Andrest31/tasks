@@ -18,10 +18,10 @@ button { cursor: pointer; }
 .roadmap-title { display: block; cursor: text; }
 .roadmap-title-input { width: 100%; border: 0; border-bottom: 1px solid #717b8d; outline: none; background: transparent; color: inherit; font-weight: 700; text-align: center; }
 
-.text-node { min-width: 40px; padding: 4px 6px; border: 1px dashed transparent; border-radius: 6px; color: #e8e9ec; font-size: 18px; font-weight: 600; white-space: nowrap; }
+.text-node { min-width: 40px; padding: 4px 6px; border: 1px dashed transparent; border-radius: 6px; color: #e8e9ec; font-size: 18px; font-weight: 600; white-space: pre-wrap; }
 .text-node.is-selected { border-color: #555d6b; }
 .text-node span { cursor: text; }
-.text-node-input { min-width: 120px; border: 0; border-bottom: 1px solid #717b8d; outline: none; background: transparent; color: inherit; font-size: 18px; font-weight: 600; }
+.text-node-input { min-width: 180px; min-height: 30px; overflow: hidden; resize: none; border: 0; border-bottom: 1px solid #717b8d; outline: none; background: transparent; color: inherit; font-size: 18px; line-height: 1.35; font-weight: 600; white-space: pre-wrap; }
 
 .react-flow__handle { width: 10px; height: 10px; border: 2px solid #171a20; background: #d7dbe2; transition: opacity .12s ease; }
 .react-flow__handle.handle-hidden { opacity: 0; pointer-events: none; }

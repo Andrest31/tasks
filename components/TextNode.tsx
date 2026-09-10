@@ -8,11 +8,9 @@ export default function TextNode({ id, data, selected }: NodeProps<Node<RoadmapN
   const updateNode = useRoadmapStore((state) => state.updateNode);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(data.text);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    setValue(data.text);
-  }, [data.text]);
+  useEffect(() => setValue(data.text), [data.text]);
 
   useEffect(() => {
     if (editing) {
@@ -37,14 +35,18 @@ export default function TextNode({ id, data, selected }: NodeProps<Node<RoadmapN
       }}
     >
       {editing ? (
-        <input
+        <textarea
           ref={inputRef}
-          className="nodrag text-node-input"
+          rows={Math.max(1, value.split('\n').length)}
+          className="nodrag nopan text-node-input"
           value={value}
           onChange={(event) => setValue(event.target.value)}
           onBlur={save}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') save();
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              save();
+            }
             if (event.key === 'Escape') {
               setValue(data.text);
               setEditing(false);

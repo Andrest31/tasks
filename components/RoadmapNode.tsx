@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react';
 import { useRoadmapStore, type RoadmapNodeData } from '@/store/useRoadmapStore';
 
+const handles = [
+  { id: 'top', position: Position.Top },
+  { id: 'right', position: Position.Right },
+  { id: 'bottom', position: Position.Bottom },
+  { id: 'left', position: Position.Left },
+];
+
 export default function RoadmapNode({ id, data, selected }: NodeProps<Node<RoadmapNodeData>>) {
   const updateNode = useRoadmapStore((state) => state.updateNode);
   const tool = useRoadmapStore((state) => state.tool);
@@ -11,9 +18,7 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
   const [title, setTitle] = useState(data.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setTitle(data.title);
-  }, [data.title]);
+  useEffect(() => setTitle(data.title), [data.title]);
 
   useEffect(() => {
     if (editing) {
@@ -33,8 +38,15 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
 
   return (
     <div className={`roadmap-node ${data.completed ? 'is-completed' : ''} ${selected ? 'is-selected' : ''}`}>
-      <Handle className={showHandles ? '' : 'handle-hidden'} type="target" position={Position.Top} />
-      <Handle className={showHandles ? '' : 'handle-hidden'} type="target" position={Position.Left} />
+      {handles.map((handle) => (
+        <Handle
+          key={handle.id}
+          id={handle.id}
+          className={showHandles ? '' : 'handle-hidden'}
+          type="source"
+          position={handle.position}
+        />
+      ))}
 
       {editing ? (
         <input
@@ -62,9 +74,6 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
           {data.title}
         </span>
       )}
-
-      <Handle className={showHandles ? '' : 'handle-hidden'} type="source" position={Position.Right} />
-      <Handle className={showHandles ? '' : 'handle-hidden'} type="source" position={Position.Bottom} />
     </div>
   );
 }
