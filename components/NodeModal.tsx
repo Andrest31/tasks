@@ -40,14 +40,23 @@ export default function NodeModal() {
   if (!node || node.data.kind !== 'block') return null;
 
   const openDatePicker = () => {
-    const input = dateInputRef.current;
-    if (!input) return;
-    if ('showPicker' in input) {
-      input.showPicker();
-    } else {
-      input.click();
+  const input = dateInputRef.current;
+
+  if (!input) return;
+
+  const showPicker = (
+    input as HTMLInputElement & {
+      showPicker?: () => void;
     }
-  };
+  ).showPicker;
+
+  if (typeof showPicker === 'function') {
+    showPicker.call(input);
+    return;
+  }
+
+  input.click();
+};
 
   const handleDateChange = (value: string) => {
     updateNode(node.id, { dueDate: value });
