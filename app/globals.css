@@ -457,3 +457,24 @@ button { cursor: pointer; }
     font-size: clamp(18px, min(3.5cqw, 6.7cqh), 34px);
   }
 }
+
+
+/* V13 — reliable title scaling from the node's actual React Flow dimensions.
+   These variables are calculated in RoadmapNode on every resize. */
+.roadmap-title,
+.roadmap-title-input {
+  font-size: var(--roadmap-title-size, 18px) !important;
+}
+
+.roadmap-description {
+  font-size: var(--roadmap-description-size, 12px) !important;
+}
+
+/* Keep the title as the dominant content area. */
+.roadmap-card-body {
+  grid-template-rows: minmax(0, 2.8fr) auto !important;
+}
+
+.roadmap-title {
+  max-height: 100%;
+}

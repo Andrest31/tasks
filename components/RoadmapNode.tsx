@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Handle, NodeResizer, Position, type Node, type NodeProps } from '@xyflow/react';
 import { useRoadmapStore, type RoadmapNodeData } from '@/store/useRoadmapStore';
 
@@ -17,7 +17,7 @@ function formatDate(value?: string) {
   return `${day}.${month}.${year}`;
 }
 
-export default function RoadmapNode({ id, data, selected }: NodeProps<Node<RoadmapNodeData>>) {
+export default function RoadmapNode({ id, data, selected, width, height }: NodeProps<Node<RoadmapNodeData>>) {
   const updateNode = useRoadmapStore((state) => state.updateNode);
   const updateNodeSize = useRoadmapStore((state) => state.updateNodeSize);
   const tool = useRoadmapStore((state) => state.tool);
@@ -50,8 +50,22 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
   const showHandles = tool === 'arrow' || selected;
   const showResizer = tool === 'select' && !editing;
 
+  // Scale typography from the node's real rendered dimensions.
+  // Using explicit pixel values here avoids container-query support/measurement quirks
+  // inside React Flow's transformed canvas.
+  const nodeWidth = width ?? 310;
+  const nodeHeight = height ?? 170;
+  const titleFontSize = Math.max(18, Math.min(52, 18 + (nodeWidth - 270) * 0.055 + (nodeHeight - 150) * 0.07));
+  const descriptionFontSize = Math.max(12, Math.min(20, 12 + (nodeWidth - 270) * 0.014 + (nodeHeight - 150) * 0.018));
+
   return (
-    <div className="roadmap-node-wrap">
+    <div
+      className="roadmap-node-wrap"
+      style={{
+        '--roadmap-title-size': `${titleFontSize}px`,
+        '--roadmap-description-size': `${descriptionFontSize}px`,
+      } as CSSProperties}
+    >
       <NodeResizer
         isVisible={showResizer}
         minWidth={270}
