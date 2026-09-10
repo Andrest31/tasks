@@ -10,6 +10,7 @@ export type RoadmapNodeData = {
   description: string;
   completed: boolean;
   text: string;
+  dueDate?: string;
 };
 
 export type RoadmapNode = Node<RoadmapNodeData>;
@@ -44,12 +45,14 @@ const initialNodes: RoadmapNode[] = [
     id: '1',
     type: 'roadmap',
     position: { x: 120, y: 140 },
+    style: { width: 310, height: 170 },
     data: {
       kind: 'block',
       title: 'Первый блок',
       description: 'Один клик открывает подробности. Дважды по названию — переименование прямо на холсте.',
       completed: false,
       text: '',
+      dueDate: '',
     },
   },
 ];
@@ -79,12 +82,14 @@ export const useRoadmapStore = create<RoadmapState>()(
               id: crypto.randomUUID(),
               type: 'roadmap',
               position,
+              style: { width: 310, height: 170 },
               data: {
                 kind: 'block',
                 title: 'Новый блок',
                 description: '',
                 completed: false,
                 text: '',
+                dueDate: '',
               },
             },
           ],
@@ -105,6 +110,7 @@ export const useRoadmapStore = create<RoadmapState>()(
                 description: '',
                 completed: false,
                 text: 'Текст',
+                dueDate: '',
               },
             },
           ],
