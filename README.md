@@ -30,3 +30,8 @@ npm run dev
 ## v10 fixes
 - Block cards fill the resize box live while dragging.
 - Escape closes the block details modal.
+
+## v11
+- Title-first roadmap cards: the title occupies most of the card body.
+- Card typography scales with block dimensions.
+- Description preview is intentionally limited to two lines.

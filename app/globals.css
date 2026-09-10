@@ -315,3 +315,101 @@ button { cursor: pointer; }
   min-width: 0;
   min-height: 0;
 }
+
+/* V11 — title-first cards with responsive typography */
+.react-flow__node-roadmap {
+  container-type: size;
+  container-name: roadmap-card;
+}
+
+.roadmap-card-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 2.2fr) auto;
+  gap: clamp(6px, 1.5cqh, 14px);
+  padding: clamp(16px, 4cqh, 30px) clamp(18px, 3.2cqw, 34px) clamp(10px, 2.5cqh, 20px);
+}
+
+.roadmap-title,
+.roadmap-title-input {
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  color: var(--card-title);
+  font-size: clamp(18px, min(3.4cqw, 7.2cqh), 44px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 820;
+}
+
+.roadmap-title {
+  align-self: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.roadmap-title-input {
+  align-self: stretch;
+  resize: none;
+  overflow: hidden;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.roadmap-description {
+  margin: 0;
+  color: rgba(220, 217, 235, .74);
+  font-size: clamp(11px, min(1.45cqw, 3.15cqh), 18px);
+  line-height: 1.35;
+  font-weight: 580;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.roadmap-description.is-empty {
+  color: rgba(180, 176, 202, .46);
+  font-style: italic;
+}
+
+.roadmap-card-footer {
+  flex: 0 0 auto;
+  min-height: clamp(46px, 11cqh, 62px);
+  padding: 0 clamp(14px, 2.7cqw, 26px);
+}
+
+.status-pill,
+.node-date-chip,
+.node-date-empty,
+.node-more {
+  font-size: clamp(10px, min(1.05cqw, 2.25cqh), 14px);
+}
+
+.status-check {
+  width: clamp(16px, 3.5cqh, 22px);
+  height: clamp(16px, 3.5cqh, 22px);
+}
+
+.node-date-chip {
+  height: clamp(26px, 6cqh, 34px);
+}
+
+@container roadmap-card (max-height: 190px) {
+  .roadmap-card-body {
+    grid-template-rows: minmax(0, 1.8fr) auto;
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
+  .roadmap-title,
+  .roadmap-title-input {
+    font-size: clamp(18px, min(3.5cqw, 6.7cqh), 34px);
+  }
+}

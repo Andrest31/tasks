@@ -23,7 +23,7 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
   const tool = useRoadmapStore((state) => state.tool);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(data.title);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const tone = useMemo(() => {
     if (data.completed) return 'tone-green';
@@ -82,14 +82,18 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
 
         <div className="roadmap-card-body">
           {editing ? (
-            <input
+            <textarea
               ref={inputRef}
+              rows={3}
               className="nodrag roadmap-title-input"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               onBlur={saveTitle}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') saveTitle();
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  saveTitle();
+                }
                 if (event.key === 'Escape') {
                   setTitle(data.title);
                   setEditing(false);
