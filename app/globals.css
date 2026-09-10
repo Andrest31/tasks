@@ -1,0 +1,58 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1115; color: #f4f4f5; }
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 58px; flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #272a31; background: #15181e; }
+.topbar > div { display: flex; gap: 10px; align-items: baseline; }
+.topbar span { color: #8b93a1; font-size: 13px; }
+.canvas-wrap { flex: 1; min-height: 0; }
+
+.icon-button { border: 0; background: transparent; color: #f4f4f5; font-size: 28px; line-height: 1; }
+
+.roadmap-node { min-width: 170px; max-width: 280px; padding: 14px 18px; border: 1px solid #3a3f49; border-radius: 12px; background: #1a1e25; box-shadow: 0 8px 24px rgba(0,0,0,.2); text-align: center; font-weight: 700; transition: border-color .15s ease, opacity .15s ease, transform .15s ease; }
+.roadmap-node.is-selected { border-color: #828b9b; }
+.roadmap-node.is-completed { opacity: .4; }
+.roadmap-node.is-completed .roadmap-title { text-decoration: line-through; }
+.roadmap-title { display: block; cursor: text; }
+.roadmap-title-input { width: 100%; border: 0; border-bottom: 1px solid #717b8d; outline: none; background: transparent; color: inherit; font-weight: 700; text-align: center; }
+
+.text-node { min-width: 40px; padding: 4px 6px; border: 1px dashed transparent; border-radius: 6px; color: #e8e9ec; font-size: 18px; font-weight: 600; white-space: nowrap; }
+.text-node.is-selected { border-color: #555d6b; }
+.text-node span { cursor: text; }
+.text-node-input { min-width: 120px; border: 0; border-bottom: 1px solid #717b8d; outline: none; background: transparent; color: inherit; font-size: 18px; font-weight: 600; }
+
+.react-flow__handle { width: 10px; height: 10px; border: 2px solid #171a20; background: #d7dbe2; transition: opacity .12s ease; }
+.react-flow__handle.handle-hidden { opacity: 0; pointer-events: none; }
+.tool-arrow .react-flow__handle { width: 12px; height: 12px; opacity: 1 !important; pointer-events: auto !important; }
+.tool-block .react-flow__pane,
+.tool-text .react-flow__pane { cursor: crosshair; }
+
+.bottom-toolbar { position: fixed; z-index: 40; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 7px; border: 1px solid #303540; border-radius: 15px; background: rgba(23,26,32,.94); box-shadow: 0 16px 44px rgba(0,0,0,.42); backdrop-filter: blur(16px); }
+.toolbar-button { width: 42px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: #aeb4bf; }
+.toolbar-button:hover { background: #232832; color: #fff; }
+.toolbar-button.is-active { background: #f3f4f6; color: #111318; }
+.toolbar-button.danger:hover:not(:disabled) { background: #432126; color: #ffb2ba; }
+.toolbar-button:disabled { opacity: .28; cursor: default; }
+.toolbar-button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.toolbar-button:first-child svg { fill: currentColor; stroke: currentColor; }
+.toolbar-divider { width: 1px; height: 26px; margin: 0 2px; background: #343945; }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.58); }
+.note-modal { position: relative; width: min(680px, 100%); min-height: 440px; display: flex; flex-direction: column; gap: 0; border: 1px solid #2d323b; border-radius: 18px; padding: 28px; background: #171a20; box-shadow: 0 24px 70px rgba(0,0,0,.45); }
+.modal-close { position: absolute; top: 16px; right: 18px; z-index: 2; color: #8f96a3; }
+.modal-close:hover { color: #fff; }
+.modal-title-editor { width: calc(100% - 42px); border: 0; outline: 0; padding: 0 0 18px; background: transparent; color: #f4f4f5; font-size: 24px; line-height: 1.25; font-weight: 750; }
+.modal-title-editor::placeholder { color: #666e7c; }
+.modal-description-editor { flex: 1; width: 100%; min-height: 290px; border: 0; outline: 0; resize: none; padding: 4px 0 20px; background: transparent; color: #c8ccd4; font-size: 15px; line-height: 1.65; }
+.modal-description-editor::placeholder { color: #626a77; }
+.modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid #292e37; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; color: #c8ccd4; font-size: 14px; }
+.delete-button { border: 1px solid #563038; border-radius: 10px; padding: 9px 12px; background: #2b171b; color: #ffb7bd; }
+.delete-button:hover { background: #3a1d22; }
+.react-flow__selection { border: 1px solid #8d98aa !important; background: rgba(141,152,170,.10) !important; }
+.react-flow__nodesselection-rect { border: 1px solid #8d98aa !important; background: rgba(141,152,170,.06) !important; }
+.react-flow__controls { bottom: 20px !important; left: 20px !important; }
+.react-flow__controls button { background: #1a1e25; color: #fff; border-bottom-color: #343945; }
+.react-flow__edge.selected .react-flow__edge-path { stroke-width: 3; }
