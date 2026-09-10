@@ -211,6 +211,49 @@ button { cursor: pointer; }
 .toolbar-label { font-size: 10px; font-weight: 600; }
 .toolbar-divider { width: 1px; height: 40px; align-self: center; margin: 0 3px; background: rgba(145,139,195,.17); }
 
+
+/* BACKGROUND MOTIVATIONAL QUOTE */
+.background-quote {
+  position: absolute;
+  right: clamp(34px, 5.8vw, 104px);
+  bottom: clamp(92px, 11vh, 150px);
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: rgba(214, 204, 242, .54);
+  font-family: "Snell Roundhand", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: clamp(18px, 1.7vw, 30px);
+  line-height: 1.28;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: .015em;
+  text-align: right;
+  transform: rotate(-4deg);
+  text-shadow: 0 1px 18px rgba(27, 16, 58, .42);
+}
+
+.background-quote span:nth-child(2) {
+  margin-right: .7em;
+}
+
+.background-quote span:nth-child(3) {
+  margin-right: .05em;
+}
+
+.background-quote i {
+  display: block;
+  width: 96px;
+  height: 1px;
+  margin-top: 13px;
+  margin-right: 6px;
+  background: linear-gradient(90deg, transparent, rgba(179, 151, 226, .62));
+  transform: rotate(-5deg);
+  transform-origin: right center;
+}
+
 /* MODAL / NOTE */
 .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; background: rgba(2,3,11,.62); backdrop-filter: blur(7px); }
 .note-modal { position: relative; width: min(720px, 100%); min-height: 470px; display: flex; flex-direction: column; border: 1px solid rgba(147, 139, 197, .2); border-radius: 20px; padding: 30px; background: linear-gradient(145deg, rgba(22,24,49,.98), rgba(12,14,31,.99)); box-shadow: 0 35px 100px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.035); }
@@ -247,6 +290,7 @@ button { cursor: pointer; }
 .react-flow__minimap-node { fill: #26335d !important; stroke: #6d75b0 !important; }
 
 @media (max-width: 760px) {
+  .background-quote { display: none; }
   .brand-copy span, .save-indicator { display: none; }
   .topbar { padding: 0 14px; }
   .topbar-actions { gap: 6px; }

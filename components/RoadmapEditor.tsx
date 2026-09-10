@@ -137,6 +137,12 @@ function EditorCanvas() {
           <MiniMap pannable zoomable nodeStrokeWidth={2} />
         </ReactFlow>
       </section>
+      <div className="background-quote" aria-hidden="true">
+        <span>Большие цели</span>
+        <span>начинаются</span>
+        <span>с маленьких шагов</span>
+        <i />
+      </div>
       <BottomToolbar />
       <NodeModal />
     </main>
