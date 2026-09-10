@@ -25,3 +25,8 @@ npm run dev
 - атмосферный тёмный горный интерфейс;
 - minimap и zoom controls;
 - готово к статическому деплою на Vercel без базы данных.
+
+
+## v10 fixes
+- Block cards fill the resize box live while dragging.
+- Escape closes the block details modal.

@@ -19,6 +19,7 @@ function formatDate(value?: string) {
 
 export default function RoadmapNode({ id, data, selected }: NodeProps<Node<RoadmapNodeData>>) {
   const updateNode = useRoadmapStore((state) => state.updateNode);
+  const updateNodeSize = useRoadmapStore((state) => state.updateNodeSize);
   const tool = useRoadmapStore((state) => state.tool);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(data.title);
@@ -47,16 +48,27 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
   };
 
   const showHandles = tool === 'arrow' || selected;
+  const showResizer = tool === 'select' && !editing;
 
   return (
-    <>
+    <div className="roadmap-node-wrap">
       <NodeResizer
-        isVisible={selected && !editing}
+        isVisible={showResizer}
         minWidth={270}
         minHeight={150}
+        maxWidth={760}
+        maxHeight={560}
+        keepAspectRatio={false}
         handleClassName="roadmap-resize-handle"
         lineClassName="roadmap-resize-line"
+        onResize={(_event, params) => {
+          updateNodeSize(id, params.width, params.height);
+        }}
+        onResizeEnd={(_event, params) => {
+          updateNodeSize(id, params.width, params.height);
+        }}
       />
+
       <article className={`roadmap-node ${tone} ${data.completed ? 'is-completed' : ''} ${selected ? 'is-selected' : ''}`}>
         {handles.map((handle) => (
           <Handle
@@ -119,6 +131,6 @@ export default function RoadmapNode({ id, data, selected }: NodeProps<Node<Roadm
           <span className="node-more" aria-hidden="true">•••</span>
         </footer>
       </article>
-    </>
+    </div>
   );
 }

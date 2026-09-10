@@ -50,7 +50,8 @@ function autoAttachEdges(nodes: RoadmapNodeType[], edges: Edge[]) {
     const source = nodeMap.get(edge.source); const target = nodeMap.get(edge.target);
     if (!source || !target) return edge;
     const [sourceHandle, targetHandle] = getBestSides(source, target);
-    return edge.sourceHandle === sourceHandle && edge.targetHandle === targetHandle ? edge : { ...edge, sourceHandle, targetHandle };
+    const next = { ...edge, type: 'default', sourceHandle, targetHandle };
+    return edge.type === 'default' && edge.sourceHandle === sourceHandle && edge.targetHandle === targetHandle ? edge : next;
   });
 }
 
@@ -64,6 +65,16 @@ function EditorCanvas() {
 
   useEffect(() => { if (hasHydrated) void setFlowViewport(viewport, { duration: 0 }); }, [hasHydrated, setFlowViewport, viewport]);
 
+  useEffect(() => {
+    if (!hasHydrated) return;
+    const normalized = autoAttachEdges(nodes, edges);
+    const needsUpdate = normalized.some((edge, index) => {
+      const current = edges[index];
+      return !current || edge.type !== current.type || edge.sourceHandle !== current.sourceHandle || edge.targetHandle !== current.targetHandle;
+    });
+    if (needsUpdate) setEdges(normalized);
+  }, [hasHydrated]);
+
   const onNodesChange = useCallback((changes: NodeChange<RoadmapNodeType>[]) => {
     const nextNodes = applyNodeChanges(changes, nodes); setNodes(nextNodes); setEdges(autoAttachEdges(nextNodes, edges));
   }, [edges, nodes, setEdges, setNodes]);
@@ -71,7 +82,7 @@ function EditorCanvas() {
   const onEdgesChange = useCallback((changes: EdgeChange[]) => setEdges(applyEdgeChanges(changes, edges)), [edges, setEdges]);
 
   const onConnect = useCallback((connection: Connection) => {
-    const nextEdges = addEdge({ ...connection, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 }, style: { strokeWidth: 2 } }, edges);
+    const nextEdges = addEdge({ ...connection, type: 'default', markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 }, style: { strokeWidth: 2 } }, edges);
     setEdges(autoAttachEdges(nodes, nextEdges)); setTool('select');
   }, [edges, nodes, setEdges, setTool]);
 
@@ -118,7 +129,7 @@ function EditorCanvas() {
           onNodeClick={(_, node) => selectNode(node.id)} onEdgeClick={(_, edge) => selectEdge(edge.id)} onMoveEnd={onMoveEnd}
           connectionMode={ConnectionMode.Loose} selectionOnDrag={tool === 'select'} selectionMode={SelectionMode.Partial}
           multiSelectionKeyCode={['Meta', 'Shift']} panOnDrag={tool === 'select' ? [1, 2] : true} panOnScroll deleteKeyCode={null} edgesReconnectable
-          defaultEdgeOptions={{ type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 } }}
+          defaultEdgeOptions={{ type: 'default', markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 } }}
           minZoom={0.25} maxZoom={2}
         >
           <Background gap={28} size={1} color="rgba(139,129,190,.16)" />

@@ -35,6 +35,7 @@ type RoadmapState = {
   selectEdge: (id: string | null) => void;
   clearSelection: () => void;
   updateNode: (id: string, patch: Partial<RoadmapNodeData>) => void;
+  updateNodeSize: (id: string, width: number, height: number) => void;
   deleteNode: (id: string) => void;
   deleteEdge: (id: string) => void;
   deleteSelection: () => void;
@@ -125,6 +126,20 @@ export const useRoadmapStore = create<RoadmapState>()(
         set((state) => ({
           nodes: state.nodes.map((node) =>
             node.id === id ? { ...node, data: { ...node.data, ...patch } } : node
+          ),
+        })),
+
+      updateNodeSize: (id, width, height) =>
+        set((state) => ({
+          nodes: state.nodes.map((node) =>
+            node.id === id
+              ? {
+                  ...node,
+                  width,
+                  height,
+                  style: { ...(node.style ?? {}), width, height },
+                }
+              : node
           ),
         })),
 

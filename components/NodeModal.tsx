@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRoadmapStore } from '@/store/useRoadmapStore';
 
 function CalendarIcon() {
@@ -22,6 +22,20 @@ export default function NodeModal() {
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [datePickerKey, setDatePickerKey] = useState(0);
   const node = nodes.find((item) => item.id === selectedNodeId);
+
+  useEffect(() => {
+    if (!selectedNodeId) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopPropagation();
+      selectNode(null);
+    };
+
+    window.addEventListener('keydown', handleEscape, true);
+    return () => window.removeEventListener('keydown', handleEscape, true);
+  }, [selectedNodeId, selectNode]);
 
   if (!node || node.data.kind !== 'block') return null;
 
